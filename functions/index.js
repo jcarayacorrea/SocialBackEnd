@@ -1,13 +1,18 @@
 const functions = require('firebase-functions');
 const app = require('express')();
-const firebase = require('firebase');
-const db = require('firebase/firestore');
+const firebase = require('firebase/app');
+
+const admin = require('firebase-admin');
 
 const firebaseConf = require('./firebaseConfig');
 const cors = require('cors');
 
 
-
+admin.initializeApp({
+    credential: admin.credential.applicationDefault(),
+    storageBucket: firebaseConf.firebaseConfig.storageBucket
+    
+})
 firebase.initializeApp(firebaseConf.firebaseConfig);
 
 

@@ -1,8 +1,10 @@
-const db = require('firebase/firestore');
-const auth = require('firebase/auth');
-const {Storage} = require('@google-cloud/storage');
 
-const storage = new Storage();
+const firebase = require('firebase');
+const admin = require('firebase-admin');
+const storage = admin.storage();
+const db = firebase.firestore();
+
+
 
 
 let token, userId;
@@ -62,7 +64,7 @@ exports.login = (req, res) => {
         return res.status(400).json({ error: 'Usuario y/o contraseña no deben estar vacios.' })
     }
 
-    auth.signInWithEmailAndPassword(user.email, user.password)
+    auth().signInWithEmailAndPassword(user.email, user.password)
         .then((data) => {
             return data.user.getIdToken();
         }).then((token) => {
@@ -87,7 +89,7 @@ exports.fbAuth = (req, res, next) => {
         res.status(403).json({ error: 'No se autoriza ingreso' });
     }
 
-    auth.verifyIdToken(idToken)
+    admin.auth().verifyIdToken(idToken)
         .then((decodedToken) => {
             req.user = decodedToken;
             console.log(decodedToken);
@@ -98,7 +100,7 @@ exports.fbAuth = (req, res, next) => {
             req.user.imageUrl = data.docs[0].data().imageUrl;
             return next();
         }).catch((err) => {
-            console.error('Error al verificar token');
+            console.error('Error al verificar token ->'+ err);
             return res.status(403).json(err);
 
         })

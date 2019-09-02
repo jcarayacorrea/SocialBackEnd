@@ -86,3 +86,5 @@ typings/
 
 # DynamoDB Local files
 .dynamodb/
+
+socialMediaDemo-5b59b279ae6a.json
