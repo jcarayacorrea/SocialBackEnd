@@ -1,0 +1,1 @@
+docker run -p 8080:8080 -p 5001:5001 -p 5000:5000 -p 9005:9005 -v `pwd`:/backFirebase -it firebase /bin/bash
