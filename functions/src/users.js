@@ -3,6 +3,7 @@ const firebase = require('firebase');
 const admin = require('firebase-admin');
 const storage = admin.storage();
 const db = firebase.firestore();
+const auth = firebase.auth;
 
 
 
@@ -25,7 +26,7 @@ exports.signUp = (req, res) => {
             if (doc.exists) {
                 return res.status(400).json({ handle: 'Este usuario ya existe' })
             } else {
-                return auth.createUserWithEmailAndPassword(newUser.email, newUser.password);
+                return auth().createUserWithEmailAndPassword(newUser.email, newUser.password);
             }
 
         }).then((data) => {
@@ -68,7 +69,7 @@ exports.login = (req, res) => {
         .then((data) => {
             return data.user.getIdToken();
         }).then((token) => {
-            return res.json(token);
+            return res.json({token});
         }).catch((err) => {
             console.error(err);
             if (err.code === 'auth/wrong-password') {
@@ -173,6 +174,7 @@ exports.addUserDetails = (req, res) => {
 
 exports.getAuthenticatedUser = (req, res) => {
     let userData = {};
+    console.log(req.user);
     db.doc(`/users/${req.user.handle}`).get()
         .then((doc) => {
             if (doc.exists) {
@@ -181,25 +183,31 @@ exports.getAuthenticatedUser = (req, res) => {
             }
         }).then((data) => {
             userData.likes = [];
-            data.forEach((doc) => {
-                userData.likes.push(doc.data());
-
-            });
+            if(data){
+                data.forEach((doc) => {
+                    userData.likes.push(doc.data());
+    
+                });
+            }
+            console.log(req.user.handle);
             return db.collection('notifications').where('recipient', '==', req.user.handle)
                 .orderBy('createdAt', 'desc').get()
         }).then((data) => {
             userData.notifications = [];
-            data.forEach((doc) => {
-                userData.notifications.push({
-                    recipient: doc.data().recipient,
-                    sender: doc.data().sender,
-                    createdAt: doc.data().createdAt,
-                    screamId: doc.data().screamId,
-                    type: doc.data().type,
-                    read: doc.data().read,
-                    notificationId: doc.id
+            if(data){
+                data.forEach((doc) => {
+                    userData.notifications.push({
+                        recipient: doc.data().recipient,
+                        sender: doc.data().sender,
+                        createdAt: doc.data().createdAt,
+                        screamId: doc.data().screamId,
+                        type: doc.data().type,
+                        read: doc.data().read,
+                        notificationId: doc.id
+                    })
                 })
-            })
+            }
+            
             return res.json(userData);
         })
         .catch((err) => {
