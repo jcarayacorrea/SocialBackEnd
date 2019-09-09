@@ -5,6 +5,8 @@ const storage = admin.storage();
 const db = firebase.firestore();
 const auth = firebase.auth;
 
+const blank = 'blank.png';
+
 
 
 
@@ -38,6 +40,9 @@ exports.signUp = (req, res) => {
                 handle: newUser.handle,
                 email: newUser.email,
                 createdAt: new Date().toISOString(),
+                imageUrl : `https://firebasestorage.googleapis.com/v0/b/${
+                    config.storageBucket
+                  }/o/${blank}?alt=media`,
                 userId
             }
             return db.doc(`/users/${newUser.handle}`).set(userCredentials);
